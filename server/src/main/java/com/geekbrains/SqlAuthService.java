@@ -13,7 +13,6 @@ public class SqlAuthService {
 
     static void connection() {
         try {
-
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:users.db");
             stmt = connection.createStatement();
@@ -22,9 +21,7 @@ public class SqlAuthService {
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
             log.error("DB_Error");
-
         }
-
     }
 
     static void disconnect() {
@@ -58,8 +55,6 @@ public class SqlAuthService {
         log.info("return from DB nickName = " + usernameDB);
 
         return ((passwordDB != null) && (passwordDB.equals(password))) ? usernameDB : null;
-
-
     }
 
     static void registrationNewUser(String login, String password, String nickName) {
