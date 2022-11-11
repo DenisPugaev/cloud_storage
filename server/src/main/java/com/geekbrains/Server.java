@@ -37,7 +37,6 @@ public class Server {
             SqlAuthService.connection();
             log.info("СТАРТ СЕРВЕРА...");
             cf.channel().closeFuture().sync();
-
         } finally {
             auth.shutdownGracefully();
             worker.shutdownGracefully();

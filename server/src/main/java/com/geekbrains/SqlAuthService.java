@@ -50,7 +50,6 @@ public class SqlAuthService {
             e.printStackTrace();
             log.error("DB_Error_auth");
         }
-
         disconnect();
         log.info("return from DB nickName = " + usernameDB);
 

@@ -72,7 +72,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info(nickName + " подключился");
-
     }
 }
 
