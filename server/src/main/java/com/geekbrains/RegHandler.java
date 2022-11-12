@@ -24,8 +24,10 @@ public class RegHandler extends ChannelInboundHandlerAdapter {
                 SqlAuthService.registrationNewUser(registration.login, registration.password, registration.nickName);
                 Files.createDirectory(Paths.get("ServerStorage-" + registration.nickName));
                 RegistrationMsg registrationMsg = new RegistrationMsg("/regOK " + registration.nickName);
+                log.info(registrationMsg);
                 ctx.writeAndFlush(registrationMsg);
             }
+            return;
         }
         ctx.fireChannelRead(msg);
     }

@@ -33,32 +33,34 @@ public class SqlAuthService {
     }
 
     static String authUser(String login, String password) {
+
         connection();
-        String usernameDB = null;
+        String nickNameDB = null;
         String passwordDB = null;
+        log.info("Данные которые пришли на авторизацию в БД= "+ login+ " | "+ password);
         try {
-            ResultSet rs = stmt.executeQuery(String.format("SELECT nickname from users WHERE login = '%s'", login));
+            ResultSet rs = stmt.executeQuery(String.format("SELECT nickName from users "+"WHERE login = '%s'", login));
 
-            if (rs.isClosed()) {
-                return null;
-            }
 
-            usernameDB = rs.getString("username");
+
+            nickNameDB = rs.getString("login");
             passwordDB = rs.getString("password");
-            System.out.println("Значение получено из ДБ - " + usernameDB);
+            System.out.println("Значение получено из ДБ - " + nickNameDB);
         } catch (SQLException e) {
             e.printStackTrace();
             log.error("DB_Error_auth");
         }
         disconnect();
-        log.info("return from DB nickName = " + usernameDB);
+        log.info("return from DB nickName = " + nickNameDB);
 
-        return ((passwordDB != null) && (passwordDB.equals(password))) ? usernameDB : null;
+        return ((passwordDB != null) && (passwordDB.equals(password))) ? nickNameDB : null;
+
     }
 
     static void registrationNewUser(String login, String password, String nickName) {
+       log.info("Данные которые пришли на регистрацию в БД= "+ login+ " | "+ password+ " | "+ nickName);
         try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO main (login, password, nickname) VALUES (?, ?, ?);");
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO users (login, password, nickName) VALUES (?, ?, ?);");
             ps.setString(1, login);
             ps.setString(2, password);
             ps.setString(3, nickName);
@@ -67,6 +69,7 @@ public class SqlAuthService {
             e.printStackTrace();
             log.error("DB_Error_Reg");
         }
+
     }
 
 
