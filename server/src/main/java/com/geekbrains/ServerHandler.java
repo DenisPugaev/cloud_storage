@@ -47,7 +47,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                 updateServerList(ctx);
             }
 
-
         } finally {
             ReferenceCountUtil.release(msg);
         }

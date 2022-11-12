@@ -7,6 +7,7 @@ import io.netty.util.ReferenceCountUtil;
 import static com.geekbrains.Server.log;
 
 public class AuthHandler extends ChannelInboundHandlerAdapter {
+
     private boolean authOk = false;
 
     @Override
@@ -32,6 +33,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             }
         } finally {
             ReferenceCountUtil.release(message);
+            log.info(message);
         }
     }
 
