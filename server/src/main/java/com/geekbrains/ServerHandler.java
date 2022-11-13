@@ -20,6 +20,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         this.nickName = user;
     }
 
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
@@ -35,17 +36,25 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             if (msg instanceof DeleteMsg) {
                 DeleteMsg deleteRequest = (DeleteMsg) msg;
                 Files.delete(Paths.get("ServerStorage-" + nickName + "/" + deleteRequest.getFileName()));
-                updateServerList(ctx);
+                updateServerFileList(ctx);
             }
             if (msg instanceof FileMsg) {
                 FileMsg fileMessage = (FileMsg) msg;
                 Files.write(Paths.get("ServerStorage-" + nickName + "/" + fileMessage.getFileName()),
                         fileMessage.getData(), StandardOpenOption.CREATE);
-                updateServerList(ctx);
+                updateServerFileList(ctx);
             }
             if (msg instanceof UpdateFileListMsg) {
-                updateServerList(ctx);
+                updateServerFileList(ctx);
             }
+            if (msg instanceof AuthMsg) {
+                AuthMsg authMsg = (AuthMsg) msg;
+                if ("/closeConnection".equals(authMsg.message)){
+                    ctx.close();
+                }
+            }
+
+
 
         } finally {
             ReferenceCountUtil.release(msg);
@@ -54,12 +63,12 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)  {
         cause.printStackTrace();
         ctx.close();
     }
 
-    private void updateServerList(ChannelHandlerContext ctx) {
+    private void updateServerFileList(ChannelHandlerContext ctx) {
         try {
             ArrayList<String> serverFileList = new ArrayList<>();
             Files.list(Paths.get("ServerStorage-" + nickName + "/")).map(p -> p.getFileName().toString()).forEach(serverFileList::add);
@@ -70,7 +79,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx)  {
         log.info(nickName + " подключился");
     }
 }

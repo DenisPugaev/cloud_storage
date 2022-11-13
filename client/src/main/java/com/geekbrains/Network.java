@@ -1,7 +1,6 @@
 package com.geekbrains;
 
 
-
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 
@@ -15,9 +14,20 @@ public class Network {
 
     private static ObjectEncoderOutputStream out;
 
+    private static boolean opened;
+
+    public static boolean isOpened() {
+        return opened;
+    }
+
+    public static void setOpened(boolean opened) {
+        Network.opened = opened;
+    }
+
     static void start() {
         try {
             socket = new Socket("localhost", 8080);
+            opened = true;
             in = new ObjectDecoderInputStream(socket.getInputStream(), 200 * 1024 * 1024);
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
         } catch (IOException e) {
@@ -36,7 +46,7 @@ public class Network {
         }
     }
 
-    public static  boolean sendMsg(AbstractMsg msg){
+    public static boolean sendMsg(AbstractMsg msg) {
         try {
             out.writeObject(msg);
         } catch (IOException e) {
@@ -45,17 +55,19 @@ public class Network {
         return false;
     }
 
-    static AbstractMsg readAbstractMsg(){
-        Object obj = null;
+    static AbstractMsg readAbstractMsg() {
+        AbstractMsg msg = null;
         try {
-            obj = in.readObject();
+            if (opened && !socket.isClosed()) {
+
+                msg = (AbstractMsg) in.readObject();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return  (AbstractMsg) obj;
+        return msg;
+
     }
-
-
 
 
 }

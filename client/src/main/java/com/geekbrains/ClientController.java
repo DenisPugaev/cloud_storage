@@ -75,23 +75,35 @@ public class ClientController implements Initializable {
         });
     }
 
-    private  void  updateClientFilesList(){
-    updateUI(()->{
-    listСlientFiles.getItems().clear();
-        try {
-            Files.list(Paths.get("ClientStorage-" + nickName)).map(p -> p.getFileName().toString())
-                    .forEach(f-> listСlientFiles.getItems().add(f));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    });
+    private void updateClientFilesList() {
+        updateUI(() -> {
+            listСlientFiles.getItems().clear();
+            try {
+                Files.list(Paths.get("ClientStorage-" + nickName)).map(p -> p.getFileName().toString())
+                        .forEach(f -> listСlientFiles.getItems().add(f));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
 
     @FXML
     void closeConnection(ActionEvent event) {
+        Network.setOpened(false);
         Network.sendMsg(new AuthMsg("/closeConnection"));
-        ClientApp.launch();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Network.stop();
+        log.info(nickName +" отключился!");
+        System.exit(0);
+
+
+//
+////        ClientApp.launch();
 
     }
 
@@ -121,7 +133,7 @@ public class ClientController implements Initializable {
     @FXML
     void sendToServer(ActionEvent event) {
         try {
-            Network.sendMsg(new FileMsg(Paths.get("ClientStorage-"+nickName+ "/"
+            Network.sendMsg(new FileMsg(Paths.get("ClientStorage-" + nickName + "/"
                     + listСlientFiles.getSelectionModel().getSelectedItem())));
         } catch (IOException e) {
             e.printStackTrace();
@@ -130,7 +142,7 @@ public class ClientController implements Initializable {
 
     @FXML
     void logIn(ActionEvent event) {
-        Network.sendMsg(new AuthMsg(loginField.getText(),passField.getText()));
+        Network.sendMsg(new AuthMsg(loginField.getText(), passField.getText()));
         loginField.clear();
         passField.clear();
 
@@ -167,60 +179,61 @@ public class ClientController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setAuth(false);
         Network.start();
-        Thread tr = new Thread(()->{
-             try {
-                 while (true) {
-                     AbstractMsg abstractMsg = (AbstractMsg) Network.readAbstractMsg();
-                     log.info(abstractMsg);
+        Thread tr = new Thread(() -> {
+            try {
+                while (Network.isOpened()) {
+                    AbstractMsg abstractMsg =  Network.readAbstractMsg();
+                    log.info(abstractMsg.getClass().getSimpleName());//LOG
 
-                     if (abstractMsg instanceof RegistrationMsg) {
-                         RegistrationMsg registrationMsg = (RegistrationMsg) abstractMsg;
-                         if (registrationMsg.message.equals("/notNullUser")) {
-                             Platform.runLater(() -> registerButton.setText("Ник занят!"));
-                         } else {
-                             String nickName = registrationMsg.message.split(" ")[1];
-                             Files.createDirectory(Paths.get("ClientStorage-" + nickName));
-                             Platform.runLater(() -> registerButton.setText("Успешная регистрация!"));
-                         }
-                     }
-                     if (abstractMsg instanceof AuthMsg) {
-                         AuthMsg authMsg = (AuthMsg) abstractMsg;
-                         if (authMsg.message.startsWith("/authOk")) {
-                             setAuth(true);
-                             nickName = authMsg.message.split(" ")[1];
-                             System.out.println(nickName + " подключился!");
-                             break;
-                         }
-                         if ("/nullUser".equals(authMsg.message)) {
-                             Platform.runLater(() -> authButton.setText("Введены неверные данные"));
-                         }
-                     }
-                     }
+                    if (abstractMsg instanceof RegistrationMsg) {
+                        RegistrationMsg registrationMsg = (RegistrationMsg) abstractMsg;
+                        if (registrationMsg.message.equals("/notNullUser")) {
+                            Platform.runLater(() -> registerButton.setText("Ник занят!"));
+                        } else {
+                            String nickName = registrationMsg.message.split(" ")[1];
+                            Files.createDirectory(Paths.get("ClientStorage-" + nickName));
+                            Platform.runLater(() -> registerButton.setText("Успех!"));
+                        }
+                    }
+                    if (abstractMsg instanceof AuthMsg) {
+                        AuthMsg authMsg = (AuthMsg) abstractMsg;
+                        if (authMsg.message.startsWith("/authOk")) {
+                            setAuth(true);
+                            nickName = authMsg.message.split(" ")[1];
+                            log.info(nickName + " подключился!");
+                            break;
+                        }
+                        if ("/nullUser".equals(authMsg.message)) {
+                            Platform.runLater(() -> authButton.setText("Ошибка!"));
+                        }
+                    }
+                }
 
-                 Network.sendMsg(new UpdateFileListMsg());
-                 updateClientFilesList();
+                Network.sendMsg(new UpdateFileListMsg());
+                updateClientFilesList();
 
-                 while (true) {
-                     AbstractMsg abstractMsg = Network.readAbstractMsg();
-                     if (abstractMsg instanceof FileMsg) {
-                         FileMsg fileMessage = (FileMsg) abstractMsg;
-                         if (!Files.exists(Paths.get("ClientStorage-" + nickName + "/" + fileMessage.getFileName()))) {
-                             Files.write(Paths.get("ClientStorage-" + nickName + "/" + fileMessage.getFileName()),
-                                     fileMessage.getData(), StandardOpenOption.CREATE);
-                             updateClientFilesList();
-                         }
-                     }
-                     if (abstractMsg instanceof UpdateFileListMsg) {
-                         UpdateFileListMsg updateFileListMsg = (UpdateFileListMsg) abstractMsg;
-                         updateServerFilesList(updateFileListMsg.getServerFileList());
-                     }
-                 }
-             }catch (IOException e){
-                 e.printStackTrace();
-                 System.out.println("Ошибка");
-             }finally {
-                 Network.stop();
-             }
+                while (true) {
+                    AbstractMsg abstractMsg = Network.readAbstractMsg();
+                    if (abstractMsg instanceof FileMsg) {
+                        FileMsg fileMessage = (FileMsg) abstractMsg;
+                        if (!Files.exists(Paths.get("ClientStorage-" + nickName + "/" + fileMessage.getFileName()))) {
+                            Files.write(Paths.get("ClientStorage-" + nickName + "/" + fileMessage.getFileName()),
+                                    fileMessage.getData(), StandardOpenOption.CREATE);
+                            updateClientFilesList();
+                        }
+                    }
+                    if (abstractMsg instanceof UpdateFileListMsg) {
+                        UpdateFileListMsg updateFileListMsg = (UpdateFileListMsg) abstractMsg;
+                        updateServerFilesList(updateFileListMsg.getServerFileList());
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Ошибка");
+            } finally {
+                Network.setOpened(false);
+                Network.stop();
+            }
         });
         tr.setDaemon(true);
         tr.start();

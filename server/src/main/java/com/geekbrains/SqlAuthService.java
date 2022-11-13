@@ -7,50 +7,28 @@ import static com.geekbrains.Server.log;
 
 public class SqlAuthService {
 
-    private static Connection connection;
-    private static Statement stmt;
-
-
-    static void connection() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:users.db");
-            stmt = connection.createStatement();
-            log.info("DB_Start");
-
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-            log.error("DB_Error");
-        }
-    }
-
-    static void disconnect() {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public SqlAuthService() {
+        dbInit();
     }
 
     static String authUser(String login, String password) {
 
-        connection();
+
         String nickNameDB = null;
         String passwordDB = null;
-        log.info("Данные которые пришли на авторизацию в БД= "+ login+ " | "+ password);
-        try {
-            ResultSet rs = stmt.executeQuery(String.format("SELECT nickName from users "+"WHERE login = '%s'", login));
-
-
-
-            nickNameDB = rs.getString("login");
+        String query = String.format("SELECT nickName, password from users " + "WHERE login = '%s'", login);
+        log.info("Данные которые пришли на авторизацию в БД= " + login + " | " + password);
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:users.db");
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            rs.next();
+            nickNameDB = rs.getString("nickName");
             passwordDB = rs.getString("password");
             System.out.println("Значение получено из ДБ - " + nickNameDB);
         } catch (SQLException e) {
             e.printStackTrace();
             log.error("DB_Error_auth");
         }
-        disconnect();
         log.info("return from DB nickName = " + nickNameDB);
 
         return ((passwordDB != null) && (passwordDB.equals(password))) ? nickNameDB : null;
@@ -58,9 +36,14 @@ public class SqlAuthService {
     }
 
     static void registrationNewUser(String login, String password, String nickName) {
-       log.info("Данные которые пришли на регистрацию в БД= "+ login+ " | "+ password+ " | "+ nickName);
-        try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO users (login, password, nickName) VALUES (?, ?, ?);");
+
+        log.info("Данные которые пришли на регистрацию в БД= " + login + " | " + password + " | " + nickName);
+
+    String query = "INSERT INTO users (login, password, nickName) VALUES (?, ?, ?);";
+
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:users.db");
+             PreparedStatement ps = connection.prepareStatement(query)) {
+
             ps.setString(1, login);
             ps.setString(2, password);
             ps.setString(3, nickName);
@@ -72,5 +55,15 @@ public class SqlAuthService {
 
     }
 
+    private static void dbInit() {
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
+
+
+

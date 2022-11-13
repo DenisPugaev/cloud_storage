@@ -23,24 +23,25 @@ public class Server {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        protected void initChannel(SocketChannel socketChannel)  {
                             socketChannel.pipeline().addLast(
                                     new ObjectEncoder(),
                                     new ObjectDecoder(1024 * 1024 * 200, ClassResolvers.cacheDisabled(null)),
                                     new RegHandler(),
                                     new AuthHandler()
+                                    //serverHandler
                             );
                         }
                     })
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture cf = sb.bind(8080).sync();
-            SqlAuthService.connection();
+
             log.info("СТАРТ СЕРВЕРА...");
             cf.channel().closeFuture().sync();
         } finally {
             auth.shutdownGracefully();
             worker.shutdownGracefully();
-            SqlAuthService.disconnect();
+
         }
     }
 

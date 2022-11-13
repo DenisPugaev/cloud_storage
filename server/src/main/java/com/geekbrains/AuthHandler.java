@@ -11,11 +11,12 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
     private boolean authOk = false;
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object message) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object message) {
         try {
             if (authOk) {
                 ctx.fireChannelRead(message);
                 return;
+
             }
             if (message instanceof AuthMsg) {
                 AuthMsg auth = (AuthMsg) message;
@@ -24,7 +25,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
                     authOk = true;
                     ctx.pipeline().addLast(new ServerHandler(user));
                     ctx.writeAndFlush(new AuthMsg("/authOk " + user));
-                } else if (auth.message.equals("/connectionClose")) {
+                } else if ("/closeConnection".equals(auth.message)) {
                     authOk = false;
                     ctx.writeAndFlush(new AuthMsg("/nullUser"));
                 } else {
@@ -38,7 +39,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)  {
         cause.printStackTrace();
         ctx.close();
     }
