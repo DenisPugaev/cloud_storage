@@ -53,6 +53,14 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                     ctx.close();
                 }
             }
+            if (msg instanceof  RenameMsg){
+                RenameMsg renameMsg =(RenameMsg) msg;
+
+                Files.move(Paths.get("ServerStorage-" + nickName + "/" + renameMsg.getOldFileName()),
+                        (Paths.get("ServerStorage-" + nickName + "/" + renameMsg.getOldFileName())).resolveSibling(renameMsg.getNewFileName()));
+                updateServerFileList(ctx);
+
+            }
 
 
 

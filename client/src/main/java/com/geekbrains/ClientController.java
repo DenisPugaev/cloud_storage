@@ -58,6 +58,18 @@ public class ClientController implements Initializable {
     @FXML
     private HBox storagePanel;
 
+    @FXML
+    private TextField renameOnClientField;
+
+    @FXML
+    private Button renameButtonClient;
+
+    @FXML
+    private TextField renameOnServerField;
+
+    @FXML
+    private Button getRenameButtonClient;
+
     private String nickName;
 
     private static void updateUI(Runnable r) {
@@ -89,7 +101,7 @@ public class ClientController implements Initializable {
 
 
     @FXML
-    void closeConnection(ActionEvent event) {
+    void closeConnection() {
         Network.setOpened(false);
         Network.sendMsg(new AuthMsg("/closeConnection"));
         try {
@@ -98,17 +110,14 @@ public class ClientController implements Initializable {
             e.printStackTrace();
         }
         Network.stop();
-        log.info(nickName +" отключился!");
+        log.info("Пользователь " + nickName + " отключился!");
         System.exit(0);
 
-
-//
-////        ClientApp.launch();
 
     }
 
     @FXML
-    void deleteOnClient(ActionEvent event) {
+    void deleteOnClient() {
 
         try {
             Files.delete(Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem()));
@@ -120,28 +129,30 @@ public class ClientController implements Initializable {
 
 
     @FXML
-    void deleteOnServer(ActionEvent event) {
+    void deleteOnServer() {
         Network.sendMsg(new DeleteMsg(listServerFiles.getSelectionModel().getSelectedItem()));
     }
 
     @FXML
-    void downloadFromServer(ActionEvent event) {
+    void downloadFromServer() {
         Network.sendMsg(new DownloadMsg(listServerFiles.getSelectionModel().getSelectedItem()));
 
     }
 
     @FXML
-    void sendToServer(ActionEvent event) {
+    void sendToServer() {
         try {
             Network.sendMsg(new FileMsg(Paths.get("ClientStorage-" + nickName + "/"
                     + listСlientFiles.getSelectionModel().getSelectedItem())));
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @FXML
-    void logIn(ActionEvent event) {
+    void logIn() {
         Network.sendMsg(new AuthMsg(loginField.getText(), passField.getText()));
         loginField.clear();
         passField.clear();
@@ -149,11 +160,15 @@ public class ClientController implements Initializable {
     }
 
     @FXML
-    void registerOnServer(ActionEvent event) {
+    void registerOnServer() {
         if (passRegField1.getText().equals(passRegField2.getText())) {
             Network.sendMsg(new RegistrationMsg(loginRegField.getText(),
                     passRegField1.getText(),
                     nickRegField.getText()));
+            loginRegField.clear();
+            nickRegField.clear();
+            passRegField1.clear();
+            passRegField2.clear();
         } else {
             System.out.println("Ошибка ввода данных");
         }
@@ -174,6 +189,47 @@ public class ClientController implements Initializable {
         }
     }
 
+    @FXML
+    public void renameOnServer(ActionEvent actionEvent) {
+        Network.sendMsg(new RenameMsg(listServerFiles.getSelectionModel().getSelectedItem(),renameOnServerField.getText()));
+        renameOnServerField.clear();
+    }
+
+    @FXML
+    void renameOnClient() {
+        if (listСlientFiles.getSelectionModel().getSelectedItem() == null) {  // если файл не выбран
+            renameButtonClient.setText("Выберите файл!");
+            return;
+        } else if (renameOnClientField.isFocused()) {                  // если поле ввода пустое(пустое название)
+            renameButtonClient.setText("Введите имя!");
+            return;
+        } else if (Files.exists(Paths.get("ClientStorage-" + nickName + "/" + null))) {
+            renameButtonClient.setText("Введите имя!");
+            return;
+        }
+
+        try {
+            Files.list(Paths.get("ClientStorage-" + nickName)).map(p -> p.getFileName().toString()).equals(renameOnClientField.getText());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (listСlientFiles.getItems().equals(renameOnClientField.getText())) { //переменовать на то же название которое уже имеется в списке
+            renameButtonClient.setText("Имя занято!");
+            return;
+        } else {
+            try {
+                renameButtonClient.setText("Переменовать");
+                Files.move(Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem()),
+                        (Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem())).resolveSibling(renameOnClientField.getText()));
+                renameOnClientField.clear();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        updateClientFilesList();
+    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -182,15 +238,16 @@ public class ClientController implements Initializable {
         Thread tr = new Thread(() -> {
             try {
                 while (Network.isOpened()) {
-                    AbstractMsg abstractMsg =  Network.readAbstractMsg();
-                    log.info(abstractMsg.getClass().getSimpleName());//LOG
+                    AbstractMsg abstractMsg = Network.readAbstractMsg();
+                  log.info(abstractMsg.getClass().getSimpleName());//LOG
+
 
                     if (abstractMsg instanceof RegistrationMsg) {
                         RegistrationMsg registrationMsg = (RegistrationMsg) abstractMsg;
-                        if (registrationMsg.message.equals("/notNullUser")) {
+                        if (registrationMsg.getMessage().equals("/notNullUser")) {
                             Platform.runLater(() -> registerButton.setText("Ник занят!"));
                         } else {
-                            String nickName = registrationMsg.message.split(" ")[1];
+                            String nickName = registrationMsg.getMessage().split(" ")[1];
                             Files.createDirectory(Paths.get("ClientStorage-" + nickName));
                             Platform.runLater(() -> registerButton.setText("Успех!"));
                         }
@@ -200,7 +257,7 @@ public class ClientController implements Initializable {
                         if (authMsg.message.startsWith("/authOk")) {
                             setAuth(true);
                             nickName = authMsg.message.split(" ")[1];
-                            log.info(nickName + " подключился!");
+                            log.info("Пользователь " + nickName + " подключился!");
                             break;
                         }
                         if ("/nullUser".equals(authMsg.message)) {
@@ -229,7 +286,7 @@ public class ClientController implements Initializable {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("Ошибка");
+                log.error("Ошибка!");
             } finally {
                 Network.setOpened(false);
                 Network.stop();
@@ -240,6 +297,5 @@ public class ClientController implements Initializable {
 
 
     }
-
 }
 

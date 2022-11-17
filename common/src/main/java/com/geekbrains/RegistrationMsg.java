@@ -1,10 +1,13 @@
 package com.geekbrains;
 
+import lombok.Data;
+
+@Data
 public class RegistrationMsg extends AbstractMsg {
-    public String login;
-    public String password;
-    public String nickName;
-    public String message;
+    private String login;
+    private String password;
+    private String nickName;
+    private String message;
 
     public RegistrationMsg(String login, String password, String nickName) {
         this.login = login;
@@ -13,6 +16,8 @@ public class RegistrationMsg extends AbstractMsg {
     }
 
     public RegistrationMsg(String message) { this.message = message;}
+
+
 }
 
 

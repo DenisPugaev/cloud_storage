@@ -1,5 +1,8 @@
 package com.geekbrains;
 
+import lombok.Data;
+
+@Data
 public class DeleteMsg extends AbstractMsg {
     private String fileName;
 
@@ -7,7 +10,4 @@ public class DeleteMsg extends AbstractMsg {
         this.fileName = fileName;
     }
 
-    public String getFileName(){
-        return fileName;
-    }
 }

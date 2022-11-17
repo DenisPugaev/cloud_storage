@@ -17,7 +17,8 @@ public class ClientApp extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/client_window.fxml"));
         Parent parent = fxmlLoader.load();
         stage.setTitle("Cloud Storage");
-        stage.setScene(new Scene(parent, 600,400));
+        stage.setScene(new Scene(parent, 700,500));
+        stage.setResizable(false);
         stage.show();
     }
 

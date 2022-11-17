@@ -16,14 +16,14 @@ public class RegHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof RegistrationMsg) {
             RegistrationMsg registration = (RegistrationMsg) msg;
-            String user = SqlAuthService.authUser(registration.login, registration.password);
+            String user = SqlAuthService.authUser(registration.getLogin(), registration.getPassword());
             if (user != null) {
                 RegistrationMsg registrationMsg = new RegistrationMsg("/notNullUser");
                 ctx.writeAndFlush(registrationMsg);
             } else {
-                SqlAuthService.registrationNewUser(registration.login, registration.password, registration.nickName);
-                Files.createDirectory(Paths.get("ServerStorage-" + registration.nickName));
-                RegistrationMsg registrationMsg = new RegistrationMsg("/regOK " + registration.nickName);
+                SqlAuthService.registrationNewUser(registration.getLogin(), registration.getPassword(), registration.getNickName());
+                Files.createDirectory(Paths.get("ServerStorage-" + registration.getNickName()));
+                RegistrationMsg registrationMsg = new RegistrationMsg("/regOK " + registration.getNickName());
                 log.info(registrationMsg);
                 ctx.writeAndFlush(registrationMsg);
             }

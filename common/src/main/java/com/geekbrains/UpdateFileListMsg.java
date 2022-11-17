@@ -1,7 +1,9 @@
 package com.geekbrains;
 
-import java.util.ArrayList;
+import lombok.Data;
 
+import java.util.ArrayList;
+@Data
 public class UpdateFileListMsg  extends  AbstractMsg{
     private ArrayList<String> serverFileList;
 
@@ -12,8 +14,5 @@ public class UpdateFileListMsg  extends  AbstractMsg{
     public UpdateFileListMsg() {
     }
 
-    public ArrayList<String> getServerFileList() {
-        return serverFileList;
-    }
 }
 

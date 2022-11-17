@@ -1,5 +1,8 @@
 package com.geekbrains;
 
+import lombok.Data;
+
+@Data
 public class DownloadMsg extends  AbstractMsg{
 
     private String fileName;
@@ -8,7 +11,4 @@ public class DownloadMsg extends  AbstractMsg{
         this.fileName = fileName;
     }
 
-    public String getFileName() {
-        return fileName;
-    }
 }

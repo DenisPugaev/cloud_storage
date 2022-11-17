@@ -34,7 +34,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             }
         } finally {
             ReferenceCountUtil.release(message);
-            log.info(message);
+            
         }
     }
 

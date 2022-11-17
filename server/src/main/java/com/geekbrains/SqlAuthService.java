@@ -24,7 +24,7 @@ public class SqlAuthService {
             rs.next();
             nickNameDB = rs.getString("nickName");
             passwordDB = rs.getString("password");
-            System.out.println("Значение получено из ДБ - " + nickNameDB);
+            log.info("Значение получено из ДБ - " + nickNameDB);
         } catch (SQLException e) {
             e.printStackTrace();
             log.error("DB_Error_auth");
