@@ -12,6 +12,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object message) {
+        log.debug(message.getClass().getSimpleName());
         try {
             if (authOk) {
                 ctx.fireChannelRead(message);
@@ -34,12 +35,12 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             }
         } finally {
             ReferenceCountUtil.release(message);
-            
+
         }
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)  {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
     }

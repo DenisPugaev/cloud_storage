@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 public class Server {
     public static Logger log = Logger.getLogger("stdout");
 
-    public void run() throws Exception {
+    public void run() {
         EventLoopGroup auth = new NioEventLoopGroup();
         EventLoopGroup worker = new NioEventLoopGroup();
         try {
@@ -23,10 +23,10 @@ public class Server {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        protected void initChannel(SocketChannel socketChannel)  {
+                        protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(
                                     new ObjectEncoder(),
-                                    new ObjectDecoder(1024 * 1024 * 200, ClassResolvers.cacheDisabled(null)),
+                                    new ObjectDecoder(1024 * 1024 * 500, ClassResolvers.cacheDisabled(null)),
                                     new RegHandler(),
                                     new AuthHandler()
                                     //serverHandler
@@ -38,6 +38,9 @@ public class Server {
 
             log.info("СТАРТ СЕРВЕРА...");
             cf.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            log.error("Ошибка на сервере!");
+            e.printStackTrace();
         } finally {
             auth.shutdownGracefully();
             worker.shutdownGracefully();
@@ -45,7 +48,7 @@ public class Server {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         new Server().run();
     }
 }

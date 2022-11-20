@@ -1,7 +1,6 @@
 package com.geekbrains;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -13,6 +12,7 @@ import javafx.scene.layout.HBox;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -62,13 +62,7 @@ public class ClientController implements Initializable {
     private TextField renameOnClientField;
 
     @FXML
-    private Button renameButtonClient;
-
-    @FXML
     private TextField renameOnServerField;
-
-    @FXML
-    private Button getRenameButtonClient;
 
     private String nickName;
 
@@ -118,13 +112,19 @@ public class ClientController implements Initializable {
 
     @FXML
     void deleteOnClient() {
+        if (listСlientFiles.getSelectionModel().getSelectedItem() == null) {
+            renameOnClientField.setPromptText("Выберите файл для удаления!");
+        } else {
 
-        try {
-            Files.delete(Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem()));
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                Files.delete(Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem()));
+            } catch (IOException e) {
+                log.error("Не выбран файл при удалении!");
+                e.printStackTrace();
+            }
+           renameOnClientField.setPromptText("Введите новое имя файла...");
+            updateClientFilesList();
         }
-        updateClientFilesList();
     }
 
 
@@ -144,8 +144,6 @@ public class ClientController implements Initializable {
         try {
             Network.sendMsg(new FileMsg(Paths.get("ClientStorage-" + nickName + "/"
                     + listСlientFiles.getSelectionModel().getSelectedItem())));
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -170,7 +168,7 @@ public class ClientController implements Initializable {
             passRegField1.clear();
             passRegField2.clear();
         } else {
-            System.out.println("Ошибка ввода данных");
+            log.error("Ошибка ввода данных!");
         }
 
     }
@@ -190,44 +188,36 @@ public class ClientController implements Initializable {
     }
 
     @FXML
-    public void renameOnServer(ActionEvent actionEvent) {
-        Network.sendMsg(new RenameMsg(listServerFiles.getSelectionModel().getSelectedItem(),renameOnServerField.getText()));
+    public void renameOnServer() {
+        Network.sendMsg(new RenameMsg(listServerFiles.getSelectionModel().getSelectedItem(), renameOnServerField.getText()));
         renameOnServerField.clear();
     }
 
     @FXML
     void renameOnClient() {
-        if (listСlientFiles.getSelectionModel().getSelectedItem() == null) {  // если файл не выбран
-            renameButtonClient.setText("Выберите файл!");
-            return;
-        } else if (renameOnClientField.isFocused()) {                  // если поле ввода пустое(пустое название)
-            renameButtonClient.setText("Введите имя!");
-            return;
-        } else if (Files.exists(Paths.get("ClientStorage-" + nickName + "/" + null))) {
-            renameButtonClient.setText("Введите имя!");
-            return;
-        }
+        String renameText = renameOnClientField.getText().trim();
+        log.debug("Введено в поле \"Переименовать\"  на клиенте - " + renameText);
 
-        try {
-            Files.list(Paths.get("ClientStorage-" + nickName)).map(p -> p.getFileName().toString()).equals(renameOnClientField.getText());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (listСlientFiles.getItems().equals(renameOnClientField.getText())) { //переменовать на то же название которое уже имеется в списке
-            renameButtonClient.setText("Имя занято!");
+        if (renameText.isEmpty()) {
+            renameOnClientField.setPromptText("Пустое поле! Введите новое имя файла!");
             return;
-        } else {
-            try {
-                renameButtonClient.setText("Переменовать");
+        }
+        try {
+            if (Files.list(Paths.get("ClientStorage-" + nickName)).map(Path::getFileName)
+                    .anyMatch(f -> f.toString().equals(renameText))) {
+                renameOnClientField.clear();
+                renameOnClientField.setPromptText("Имя файла уже существует!");
+            } else {
+
+                renameOnClientField.setPromptText("Введите новое имя файла...");
                 Files.move(Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem()),
                         (Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem())).resolveSibling(renameOnClientField.getText()));
                 renameOnClientField.clear();
-
-            } catch (IOException e) {
-                e.printStackTrace();
+                updateClientFilesList();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        updateClientFilesList();
     }
 
 
@@ -239,9 +229,7 @@ public class ClientController implements Initializable {
             try {
                 while (Network.isOpened()) {
                     AbstractMsg abstractMsg = Network.readAbstractMsg();
-                  log.info(abstractMsg.getClass().getSimpleName());//LOG
-
-
+                    log.debug(abstractMsg.getClass().getSimpleName());        //LOG
                     if (abstractMsg instanceof RegistrationMsg) {
                         RegistrationMsg registrationMsg = (RegistrationMsg) abstractMsg;
                         if (registrationMsg.getMessage().equals("/notNullUser")) {
@@ -283,6 +271,28 @@ public class ClientController implements Initializable {
                         UpdateFileListMsg updateFileListMsg = (UpdateFileListMsg) abstractMsg;
                         updateServerFilesList(updateFileListMsg.getServerFileList());
                     }
+                    if (abstractMsg instanceof RenameMsg) {
+                        RenameMsg renameMsg = (RenameMsg) abstractMsg;
+                        log.debug(renameMsg);
+                        String msg = renameMsg.getMessage();
+                        if ("/renameOK".equals(msg))
+                            Platform.runLater(() -> renameOnServerField.setPromptText("Введите новое имя файла..."));
+                        if ("/renameEmpty".equals(msg))
+                            Platform.runLater(() -> renameOnServerField.setPromptText("Пустое поле! Введите новое имя файла!"));
+                        if ("/renameBusy".equals(msg))
+                            Platform.runLater(() -> renameOnServerField.setPromptText("Имя файла уже существует!"));
+
+
+                    }
+                    if (abstractMsg instanceof DeleteMsg){
+                        DeleteMsg deleteMsg = (DeleteMsg) abstractMsg;
+                        if ("/deleteError".equals(deleteMsg.getFileName())) {
+                            Platform.runLater(() -> renameOnServerField.setPromptText("Выберите файл для удаления!"));
+                        }
+                        if ("/deleteOK".equals(deleteMsg.getFileName())){
+                            Platform.runLater(() -> renameOnServerField.setPromptText("Введите новое имя файла..."));
+                        }
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -294,8 +304,6 @@ public class ClientController implements Initializable {
         });
         tr.setDaemon(true);
         tr.start();
-
-
     }
 }
 

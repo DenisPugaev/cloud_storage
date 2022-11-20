@@ -6,6 +6,7 @@ import io.netty.util.ReferenceCountUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -34,9 +35,14 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                 }
             }
             if (msg instanceof DeleteMsg) {
-                DeleteMsg deleteRequest = (DeleteMsg) msg;
-                Files.delete(Paths.get("ServerStorage-" + nickName + "/" + deleteRequest.getFileName()));
-                updateServerFileList(ctx);
+                DeleteMsg deleteMsg = (DeleteMsg) msg;
+                if (deleteMsg.getFileName() == null) {
+                    ctx.writeAndFlush(new DeleteMsg("/deleteError"));
+                } else {
+                    Files.delete(Paths.get("ServerStorage-" + nickName + "/" + deleteMsg.getFileName()));
+                    ctx.writeAndFlush(new DeleteMsg("/deleteOK"));
+                    updateServerFileList(ctx);
+                }
             }
             if (msg instanceof FileMsg) {
                 FileMsg fileMessage = (FileMsg) msg;
@@ -49,19 +55,27 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             }
             if (msg instanceof AuthMsg) {
                 AuthMsg authMsg = (AuthMsg) msg;
-                if ("/closeConnection".equals(authMsg.message)){
+                if ("/closeConnection".equals(authMsg.message)) {
                     ctx.close();
                 }
             }
-            if (msg instanceof  RenameMsg){
-                RenameMsg renameMsg =(RenameMsg) msg;
-
-                Files.move(Paths.get("ServerStorage-" + nickName + "/" + renameMsg.getOldFileName()),
-                        (Paths.get("ServerStorage-" + nickName + "/" + renameMsg.getOldFileName())).resolveSibling(renameMsg.getNewFileName()));
-                updateServerFileList(ctx);
-
+            if (msg instanceof RenameMsg) {
+                RenameMsg renameMsg = (RenameMsg) msg;
+                String renameTextServer = renameMsg.getNewFileName().trim();
+                if (renameTextServer.isEmpty()) {
+                    ctx.writeAndFlush(new RenameMsg("/renameEmpty"));
+                    return;
+                }
+                if (Files.list(Paths.get("ServerStorage-" + nickName)).map(Path::getFileName)
+                        .anyMatch(f -> f.toString().equals(renameTextServer))) {
+                    ctx.writeAndFlush(new RenameMsg("/renameBusy"));
+                } else {
+                    Files.move(Paths.get("ServerStorage-" + nickName + "/" + renameMsg.getOldFileName()),
+                            (Paths.get("ServerStorage-" + nickName + "/" + renameMsg.getOldFileName())).resolveSibling(renameTextServer));
+                    ctx.writeAndFlush(new RenameMsg("/renameOK"));
+                    updateServerFileList(ctx);
+                }
             }
-
 
 
         } finally {
@@ -71,7 +85,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)  {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
     }
@@ -87,7 +101,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx)  {
+    public void channelActive(ChannelHandlerContext ctx) {
         log.info(nickName + " подключился");
     }
 }

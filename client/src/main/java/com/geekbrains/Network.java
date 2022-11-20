@@ -46,13 +46,12 @@ public class Network {
         }
     }
 
-    public static boolean sendMsg(AbstractMsg msg) {
+    public static void sendMsg(AbstractMsg msg) {
         try {
             out.writeObject(msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     static AbstractMsg readAbstractMsg() {
