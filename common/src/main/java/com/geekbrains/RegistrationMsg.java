@@ -1,8 +1,10 @@
 package com.geekbrains;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class RegistrationMsg extends AbstractMsg {
     private String login;
     private String password;

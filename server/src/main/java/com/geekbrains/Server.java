@@ -26,10 +26,10 @@ public class Server {
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(
                                     new ObjectEncoder(),
-                                    new ObjectDecoder(1024 * 1024 * 500, ClassResolvers.cacheDisabled(null)),
+                                    new ObjectDecoder(1024 * 1024 * 300, ClassResolvers.cacheDisabled(null)),
                                     new RegHandler(),
                                     new AuthHandler()
-                                    //serverHandler
+                                    //ServerHandler() создается в AuthHandler()
                             );
                         }
                     })

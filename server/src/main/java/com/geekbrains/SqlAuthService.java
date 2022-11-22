@@ -17,19 +17,19 @@ public class SqlAuthService {
         String nickNameDB = null;
         String passwordDB = null;
         String query = String.format("SELECT nickName, password from users " + "WHERE login = '%s'", login);
-        log.info("Данные которые пришли на авторизацию в БД= " + login + " | " + password);
+        log.info("Данные которые пришли на авторизацию в БД = " + login + " | " + password);
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:users.db");
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             rs.next();
             nickNameDB = rs.getString("nickName");
             passwordDB = rs.getString("password");
-            log.info("Значение получено из ДБ - " + nickNameDB);
+            log.info("Значение получено из БД - " + nickNameDB);
         } catch (SQLException e) {
             e.printStackTrace();
             log.error("DB_Error_auth");
         }
-        log.info("return from DB nickName = " + nickNameDB);
+        log.info("Ник который вернуся из БД = " + nickNameDB);
 
         return ((passwordDB != null) && (passwordDB.equals(password))) ? nickNameDB : null;
 
@@ -39,7 +39,7 @@ public class SqlAuthService {
 
         log.info("Данные которые пришли на регистрацию в БД= " + login + " | " + password + " | " + nickName);
 
-    String query = "INSERT INTO users (login, password, nickName) VALUES (?, ?, ?);";
+        String query = "INSERT INTO users (login, password, nickName) VALUES (?, ?, ?);";
 
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:users.db");
              PreparedStatement ps = connection.prepareStatement(query)) {

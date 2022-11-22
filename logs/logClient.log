@@ -1,0 +1,79 @@
+DEBUG JavaFX Application Thread io.netty.util.internal.logging.InternalLoggerFactory - Using Log4J as the default logging framework
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - -Dio.netty.noUnsafe: false
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - Java version: 8
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.theUnsafe: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.copyMemory: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.storeFence: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - java.nio.Buffer.address: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - direct buffer constructor: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - java.nio.Bits.unaligned: available, true
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable prior to Java9
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - java.nio.DirectByteBuffer.<init>(long, int): available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - sun.misc.Unsafe: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.tmpdir: C:\Temp (java.io.tmpdir)
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - Platform: Windows
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.maxDirectMemory: 1407713280 bytes
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.uninitializedArrayAllocationThreshold: -1
+DEBUG JavaFX Application Thread io.netty.util.internal.CleanerJava6 - java.nio.ByteBuffer.cleaner(): available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.noPreferDirect: false
+DEBUG JavaFX Application Thread io.netty.util.ResourceLeakDetector - -Dio.netty.leakDetection.level: simple
+DEBUG JavaFX Application Thread io.netty.util.ResourceLeakDetector - -Dio.netty.leakDetection.targetRecords: 4
+DEBUG JavaFX Application Thread io.netty.buffer.AbstractByteBuf - -Dio.netty.buffer.checkAccessible: true
+DEBUG JavaFX Application Thread io.netty.buffer.AbstractByteBuf - -Dio.netty.buffer.checkBounds: true
+DEBUG JavaFX Application Thread io.netty.util.ResourceLeakDetectorFactory - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@4052a6e4
+DEBUG Thread-4 stdout - AuthMsg
+INFO Thread-4 stdout - Пользователь cat подключился!
+DEBUG Thread-4 stdout - RenameMsg(oldFileName=null, newFileName=null, message=/renameBusy)
+DEBUG JavaFX Application Thread io.netty.util.internal.logging.InternalLoggerFactory - Using Log4J as the default logging framework
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - -Dio.netty.noUnsafe: false
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - Java version: 8
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.theUnsafe: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.copyMemory: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.storeFence: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - java.nio.Buffer.address: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - direct buffer constructor: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - java.nio.Bits.unaligned: available, true
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable prior to Java9
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - java.nio.DirectByteBuffer.<init>(long, int): available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - sun.misc.Unsafe: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.tmpdir: C:\Temp (java.io.tmpdir)
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - Platform: Windows
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.maxDirectMemory: 1407713280 bytes
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.uninitializedArrayAllocationThreshold: -1
+DEBUG JavaFX Application Thread io.netty.util.internal.CleanerJava6 - java.nio.ByteBuffer.cleaner(): available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.noPreferDirect: false
+DEBUG JavaFX Application Thread io.netty.util.ResourceLeakDetector - -Dio.netty.leakDetection.level: simple
+DEBUG JavaFX Application Thread io.netty.util.ResourceLeakDetector - -Dio.netty.leakDetection.targetRecords: 4
+DEBUG JavaFX Application Thread io.netty.buffer.AbstractByteBuf - -Dio.netty.buffer.checkAccessible: true
+DEBUG JavaFX Application Thread io.netty.buffer.AbstractByteBuf - -Dio.netty.buffer.checkBounds: true
+DEBUG JavaFX Application Thread io.netty.util.ResourceLeakDetectorFactory - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@56a9d411
+DEBUG Thread-4 stdout - AuthMsg
+INFO Thread-4 stdout - Пользователь cat подключился!
+DEBUG JavaFX Application Thread io.netty.util.internal.logging.InternalLoggerFactory - Using Log4J as the default logging framework
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - -Dio.netty.noUnsafe: false
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - Java version: 8
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.theUnsafe: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.copyMemory: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.storeFence: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - java.nio.Buffer.address: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - direct buffer constructor: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - java.nio.Bits.unaligned: available, true
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable prior to Java9
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent0 - java.nio.DirectByteBuffer.<init>(long, int): available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - sun.misc.Unsafe: available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.tmpdir: C:\Temp (java.io.tmpdir)
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - Platform: Windows
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.maxDirectMemory: 1407713280 bytes
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.uninitializedArrayAllocationThreshold: -1
+DEBUG JavaFX Application Thread io.netty.util.internal.CleanerJava6 - java.nio.ByteBuffer.cleaner(): available
+DEBUG JavaFX Application Thread io.netty.util.internal.PlatformDependent - -Dio.netty.noPreferDirect: false
+DEBUG JavaFX Application Thread io.netty.util.ResourceLeakDetector - -Dio.netty.leakDetection.level: simple
+DEBUG JavaFX Application Thread io.netty.util.ResourceLeakDetector - -Dio.netty.leakDetection.targetRecords: 4
+DEBUG JavaFX Application Thread io.netty.buffer.AbstractByteBuf - -Dio.netty.buffer.checkAccessible: true
+DEBUG JavaFX Application Thread io.netty.buffer.AbstractByteBuf - -Dio.netty.buffer.checkBounds: true
+DEBUG JavaFX Application Thread io.netty.util.ResourceLeakDetectorFactory - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@299a50cd
+DEBUG Thread-4 stdout - AuthMsg
+INFO Thread-4 stdout - Пользователь cat подключился!

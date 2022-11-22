@@ -23,16 +23,13 @@ import static com.geekbrains.ClientApp.log;
 public class ClientController implements Initializable {
 
     @FXML
-    private Button authButton;
-
-    @FXML
     private HBox authPanel;
 
     @FXML
-    private ListView<String> listServerFiles;
+    private ListView<String> serverFileList;
 
     @FXML
-    private ListView<String> listСlientFiles;
+    private ListView<String> clientFileList;
 
     @FXML
     private TextField loginField;
@@ -76,17 +73,17 @@ public class ClientController implements Initializable {
 
     private void updateServerFilesList(ArrayList<String> fileList) {
         updateUI(() -> {
-            listServerFiles.getItems().clear();
-            listServerFiles.getItems().addAll(fileList);
+            serverFileList.getItems().clear();
+            serverFileList.getItems().addAll(fileList);
         });
     }
 
     private void updateClientFilesList() {
         updateUI(() -> {
-            listСlientFiles.getItems().clear();
+            clientFileList.getItems().clear();
             try {
                 Files.list(Paths.get("ClientStorage-" + nickName)).map(p -> p.getFileName().toString())
-                        .forEach(f -> listСlientFiles.getItems().add(f));
+                        .forEach(f -> clientFileList.getItems().add(f));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -112,17 +109,17 @@ public class ClientController implements Initializable {
 
     @FXML
     void deleteOnClient() {
-        if (listСlientFiles.getSelectionModel().getSelectedItem() == null) {
+        if (clientFileList.getSelectionModel().getSelectedItem() == null) {
             renameOnClientField.setPromptText("Выберите файл для удаления!");
         } else {
 
             try {
-                Files.delete(Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem()));
+                Files.delete(Paths.get("ClientStorage-" + nickName + "/" + clientFileList.getSelectionModel().getSelectedItem()));
             } catch (IOException e) {
-                log.error("Не выбран файл при удалении!");
+                log.error("Ошибка при удалении!");
                 e.printStackTrace();
             }
-           renameOnClientField.setPromptText("Введите новое имя файла...");
+            renameOnClientField.setPromptText("Введите новое имя файла...");
             updateClientFilesList();
         }
     }
@@ -130,12 +127,12 @@ public class ClientController implements Initializable {
 
     @FXML
     void deleteOnServer() {
-        Network.sendMsg(new DeleteMsg(listServerFiles.getSelectionModel().getSelectedItem()));
+        Network.sendMsg(new DeleteMsg(serverFileList.getSelectionModel().getSelectedItem()));
     }
 
     @FXML
     void downloadFromServer() {
-        Network.sendMsg(new DownloadMsg(listServerFiles.getSelectionModel().getSelectedItem()));
+        Network.sendMsg(new DownloadMsg(serverFileList.getSelectionModel().getSelectedItem()));
 
     }
 
@@ -143,7 +140,7 @@ public class ClientController implements Initializable {
     void sendToServer() {
         try {
             Network.sendMsg(new FileMsg(Paths.get("ClientStorage-" + nickName + "/"
-                    + listСlientFiles.getSelectionModel().getSelectedItem())));
+                    + clientFileList.getSelectionModel().getSelectedItem())));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -159,6 +156,9 @@ public class ClientController implements Initializable {
 
     @FXML
     void registerOnServer() {
+        if (checkRegFields()) return;
+
+
         if (passRegField1.getText().equals(passRegField2.getText())) {
             Network.sendMsg(new RegistrationMsg(loginRegField.getText(),
                     passRegField1.getText(),
@@ -168,9 +168,28 @@ public class ClientController implements Initializable {
             passRegField1.clear();
             passRegField2.clear();
         } else {
+            passRegField1.clear();
+            passRegField2.clear();
+            passRegField1.setPromptText("Пароли");
+            passRegField2.setPromptText("не совпали!");
             log.error("Ошибка ввода данных!");
         }
 
+    }
+
+    private boolean checkRegFields() {
+        boolean f1 = "".equals(loginRegField.getText().trim());
+        boolean f2 = "".equals(nickRegField.getText().trim());
+        boolean f3 = "".equals(passRegField1.getText().trim());
+        boolean f4 = "".equals(passRegField2.getText().trim());
+        if (f1 || f2 || f3 || f4) {
+            if (f1) loginRegField.setPromptText("Пустой логин!");
+            if (f2) nickRegField.setPromptText("Пустой ник!");
+            if (f3) passRegField1.setPromptText("Пустой пароль!");
+            if (f4) passRegField2.setPromptText("Пустой пароль!");
+            return true;
+        }
+        return false;
     }
 
     private void setAuth(boolean isAuth) {
@@ -189,12 +208,13 @@ public class ClientController implements Initializable {
 
     @FXML
     public void renameOnServer() {
-        Network.sendMsg(new RenameMsg(listServerFiles.getSelectionModel().getSelectedItem(), renameOnServerField.getText()));
+        Network.sendMsg(new RenameMsg(serverFileList.getSelectionModel().getSelectedItem(), renameOnServerField.getText()));
         renameOnServerField.clear();
     }
 
     @FXML
     void renameOnClient() {
+
         String renameText = renameOnClientField.getText().trim();
         log.debug("Введено в поле \"Переименовать\"  на клиенте - " + renameText);
 
@@ -210,8 +230,8 @@ public class ClientController implements Initializable {
             } else {
 
                 renameOnClientField.setPromptText("Введите новое имя файла...");
-                Files.move(Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem()),
-                        (Paths.get("ClientStorage-" + nickName + "/" + listСlientFiles.getSelectionModel().getSelectedItem())).resolveSibling(renameOnClientField.getText()));
+                Files.move(Paths.get("ClientStorage-" + nickName + "/" + clientFileList.getSelectionModel().getSelectedItem()),
+                        (Paths.get("ClientStorage-" + nickName + "/" + clientFileList.getSelectionModel().getSelectedItem())).resolveSibling(renameOnClientField.getText()));
                 renameOnClientField.clear();
                 updateClientFilesList();
             }
@@ -219,7 +239,6 @@ public class ClientController implements Initializable {
             e.printStackTrace();
         }
     }
-
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -249,7 +268,12 @@ public class ClientController implements Initializable {
                             break;
                         }
                         if ("/nullUser".equals(authMsg.message)) {
-                            Platform.runLater(() -> authButton.setText("Ошибка!"));
+                            Platform.runLater(() -> {
+                                loginField.setPromptText("Пользователь не найден!");
+                                passField.setPromptText("Попробуйте снова!");
+
+                            });
+
                         }
                     }
                 }
@@ -284,12 +308,12 @@ public class ClientController implements Initializable {
 
 
                     }
-                    if (abstractMsg instanceof DeleteMsg){
+                    if (abstractMsg instanceof DeleteMsg) {
                         DeleteMsg deleteMsg = (DeleteMsg) abstractMsg;
                         if ("/deleteError".equals(deleteMsg.getFileName())) {
                             Platform.runLater(() -> renameOnServerField.setPromptText("Выберите файл для удаления!"));
                         }
-                        if ("/deleteOK".equals(deleteMsg.getFileName())){
+                        if ("/deleteOK".equals(deleteMsg.getFileName())) {
                             Platform.runLater(() -> renameOnServerField.setPromptText("Введите новое имя файла..."));
                         }
                     }
